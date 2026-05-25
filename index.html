@@ -285,7 +285,7 @@
     .delete-confirm .confirm-no:hover  { background:var(--paper-edge); }
 
     /* ── COMMENT FORM ── */
-    .comment-form-section { background:var(--paper-warm); border:var(--border-pixel); box-shadow:var(--shadow-window); padding:24px; margin-top:24px; }
+    .comment-form-section { background:var(--paper-warm); border:var(--border-pixel); box-shadow:var(--shadow-window); padding:24px; margin-bottom:24px; }
     .comment-form-title { font-family:'VT323',monospace; font-size:22px; color:var(--ink); margin-bottom:20px; padding-bottom:10px; border-bottom:1px dashed var(--paper-edge); }
     .form-row { margin-bottom:16px; }
     .form-label { display:block; font-family:'VT323',monospace; font-size:17px; color:var(--ink-soft); margin-bottom:4px; }
@@ -665,13 +665,6 @@
               💬 COMENTARIOS <span class="comment-count" id="comment-count-label">(0)</span>
             </h3>
 
-            <div id="comments-empty" class="comment-empty-state">
-              <span class="empty-star">✦</span>
-              sé la primera en dejar un comentario
-            </div>
-
-            <div id="comments-list"></div>
-
             <div class="comment-form-section">
               <h4 class="comment-form-title">✏️ DEJA TU COMENTARIO</h4>
               <form id="comment-form" onsubmit="handleCommentSubmit(event)" novalidate>
@@ -688,6 +681,13 @@
                 <div class="form-message" id="comment-form-msg"></div>
               </form>
             </div>
+
+            <div id="comments-empty" class="comment-empty-state">
+              <span class="empty-star">✦</span>
+              sé la primera en dejar un comentario
+            </div>
+
+            <div id="comments-list"></div>
           </div>
 
         </article>
