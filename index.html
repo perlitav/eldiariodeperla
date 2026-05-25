@@ -11,6 +11,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=VT323&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=VT323&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=VT323&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap"></noscript>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="6baac456-aad1-40ca-84a4-487dd2a543b3"></script>
   <style>
     /* ── TOKENS ── */
@@ -131,22 +132,16 @@
 
     /* ── GALLERY ── */
     .photo-gallery {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
       margin: 32px 0;
-      flex-wrap: wrap;
     }
-    .photo-gallery.gallery-2 { justify-content: center; }
+    .photo-gallery.gallery-2 { grid-template-columns: repeat(2, 1fr); }
 
     .polaroid-photo {
       background:white; padding:8px 8px 32px; box-shadow:var(--shadow-polaroid);
       position:relative; cursor:zoom-in; transition:var(--transition);
-      width: fit-content;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
     .polaroid-photo:nth-child(odd)   { transform:rotate(-1.5deg); }
     .polaroid-photo:nth-child(even)  { transform:rotate(1.2deg); }
@@ -155,9 +150,8 @@
     .polaroid-photo img {
       height: 280px;
       max-height: 40vh;
-      width: auto;
-      max-width: 100%;
-      object-fit: contain;
+      width: 100%;
+      object-fit: cover;
       display: block;
     }
     .polaroid-photo .photo-caption { font-family:'Caveat',cursive; font-size:13px; color:var(--ink-muted); text-align:center; margin-top:6px; }
@@ -461,10 +455,11 @@
     .lb-nav:active { box-shadow:inset -1px -1px 0 #fff, inset 1px 1px 0 var(--win-gray-dark); }
     .lb-nav:disabled { opacity:.3; cursor:default; }
     .lb-img-wrap { flex:1; text-align:center; position:relative; }
-    .lb-img-wrap::before, .lb-img-wrap::after { content:''; position:absolute; width:44px; height:18px; background:rgba(247,181,209,.7); }
-    .lb-img-wrap::before { top:-6px; left:20px; transform:rotate(-5deg); }
-    .lb-img-wrap::after  { top:-6px; right:20px; transform:rotate(4deg); background:rgba(201,168,233,.7); }
-    #lb-img { max-width:100%; max-height:65vh; object-fit:contain; display:block; margin:0 auto; }
+    .lb-photo-frame { position:relative; display:inline-block; }
+    .lb-photo-frame::before, .lb-photo-frame::after { content:''; position:absolute; width:44px; height:18px; background:rgba(247,181,209,.7); z-index:2; }
+    .lb-photo-frame::before { top:-9px; left:20%; transform:rotate(-5deg); }
+    .lb-photo-frame::after  { top:-9px; right:18%; transform:rotate(4deg); background:rgba(201,168,233,.7); }
+    #lb-img { max-width:100%; max-height:65vh; object-fit:contain; display:block; }
     #lb-caption { font-family:'Caveat',cursive; font-size:18px; color:var(--ink-muted); margin-top:12px; }
     .lb-counter { font-family:'VT323',monospace; font-size:15px; color:rgba(255,255,255,.7); }
 
@@ -487,7 +482,7 @@
       .post-title { font-size:32px; }
       .retratos-grid { grid-template-columns:1fr; gap:20px; }
       .retrato-card:nth-child(1), .retrato-card:nth-child(2), .retrato-card:nth-child(3) { transform:none; }
-      .photo-gallery { display: flex; justify-content: center; }
+      .photo-gallery { grid-template-columns: repeat(2, 1fr); }
       .polaroid-photo img { height: 200px; }
       .lb-nav { padding:6px 10px; font-size:18px; }
     }
@@ -499,7 +494,7 @@
       .window-actions { display:none; }
       .nl-form-row { flex-direction:column; }
       .nl-form-row .nl-btn { width:100%; }
-      .photo-gallery { display: flex; gap:10px; justify-content: center; }
+      .photo-gallery { grid-template-columns: repeat(2, 1fr); gap:10px; }
       .lb-body { padding:12px 8px; gap:6px; }
     }
 
@@ -780,7 +775,9 @@
       <div class="lb-body">
         <button class="lb-nav" id="lb-prev" onclick="lbNav(-1)" aria-label="foto anterior">◀</button>
         <div class="lb-img-wrap">
-          <img id="lb-img" src="" alt="">
+          <div class="lb-photo-frame">
+            <img id="lb-img" src="" alt="">
+          </div>
           <p id="lb-caption" class="lb-caption"></p>
         </div>
         <button class="lb-nav" id="lb-next" onclick="lbNav(1)" aria-label="foto siguiente">▶</button>
@@ -950,31 +947,45 @@
       }
     }
 
-    /* ══ COMMENTS (localStorage pilot) ══ */
-    const COMMENTS_KEY = 'perlhada-porto-comments';
-    /* In production: replace loadComments/saveComments with Supabase/Firebase calls */
-
-    function loadComments() {
-      try { return JSON.parse(localStorage.getItem(COMMENTS_KEY)) || []; }
-      catch { return []; }
-    }
-    function saveComments(comments) {
-      localStorage.setItem(COMMENTS_KEY, JSON.stringify(comments));
-    }
+    /* ══ COMMENTS — Supabase + localStorage owner check ══ */
+    /* RLS requerida en Supabase:
+       SELECT: anon lee filas donde is_approved = true
+       INSERT: anon puede insertar
+       UPDATE: anon puede actualizar (honor system)
+       DELETE: anon puede borrar   (honor system) */
+    const sb = window.supabase.createClient(
+      'https://glzgnjwnrdqjlyyzrvhc.supabase.co',
+      'sb_publishable_3QZVLd-fWLEYZMJoz3LBvg_KooMujDH'
+    );
+    const POST_SLUG     = 'porto-galinhas-2026';
+    const COMMENTER_KEY = 'perlhada-commenter-name';
 
     function timeAgo(iso) {
       const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
-      if (diff < 60)   return 'hace un momento';
-      if (diff < 3600) return `hace ${Math.floor(diff/60)} min`;
+      if (diff < 60)    return 'hace un momento';
+      if (diff < 3600)  return `hace ${Math.floor(diff/60)} min`;
       if (diff < 86400) return `hace ${Math.floor(diff/3600)} h`;
       return `hace ${Math.floor(diff/86400)} días`;
     }
 
-    function renderComments() {
-      const comments = loadComments();
-      const list = document.getElementById('comments-list');
-      const empty = document.getElementById('comments-empty');
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function renderComments() {
+      const list    = document.getElementById('comments-list');
+      const empty   = document.getElementById('comments-empty');
       const countEl = document.getElementById('comment-count-label');
+      const myName  = (localStorage.getItem(COMMENTER_KEY) || '').trim().toLowerCase();
+
+      const { data: comments, error } = await sb
+        .from('comments')
+        .select('id, author_name, content, created_at')
+        .eq('post_slug', POST_SLUG)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: true });
+
+      if (error || !comments) { countEl.textContent = '(0)'; empty.style.display = 'block'; return; }
 
       countEl.textContent = `(${comments.length})`;
       list.innerHTML = '';
@@ -983,92 +994,126 @@
       empty.style.display = 'none';
 
       comments.forEach(c => {
+        const isOwner = myName && myName === c.author_name.trim().toLowerCase();
         const card = document.createElement('article');
         card.className = 'comment-card';
         card.dataset.id = c.id;
+        card.dataset.content = c.content;
         card.innerHTML = `
           <div class="comment-header">
-            <div class="comment-avatar" aria-hidden="true">${c.name.charAt(0).toUpperCase()}</div>
+            <div class="comment-avatar" aria-hidden="true">${escHtml(c.author_name).charAt(0).toUpperCase()}</div>
             <div>
-              <div class="comment-name">${escHtml(c.name)}</div>
-              <div class="comment-date">${timeAgo(c.timestamp)}${c.edited ? ' · <em>editado</em>' : ''}</div>
+              <div class="comment-name">${escHtml(c.author_name)}</div>
+              <div class="comment-date">${timeAgo(c.created_at)}</div>
             </div>
           </div>
-          <p class="comment-body" id="body-${c.id}">${escHtml(c.text)}</p>
+          <p class="comment-body" id="body-${c.id}">${escHtml(c.content)}</p>
+          ${isOwner ? `
           <div class="comment-actions">
-            <button class="comment-action-btn" onclick="startEdit('${c.id}')" aria-label="editar comentario">✏️ editar</button>
-            <button class="comment-action-btn delete" onclick="startDelete('${c.id}')" aria-label="eliminar comentario">🗑 eliminar</button>
+            <button class="comment-action-btn" onclick="startEdit('${c.id}')" aria-label="editar">✏️ editar</button>
+            <button class="comment-action-btn delete" onclick="startDelete('${c.id}')" aria-label="borrar">🗑 borrar</button>
           </div>
           <div class="comment-edit-form" id="edit-${c.id}">
-            <textarea id="edit-text-${c.id}" maxlength="1000">${escHtml(c.text)}</textarea>
+            <textarea id="edit-text-${c.id}" maxlength="1000"></textarea>
             <div class="edit-actions">
               <button class="edit-save-btn" onclick="saveEdit('${c.id}')">guardar ✦</button>
               <button class="edit-cancel-btn" onclick="cancelEdit('${c.id}')">cancelar</button>
             </div>
           </div>
           <div class="delete-confirm" id="del-${c.id}">
-            ¿eliminar este comentario?
+            ¿borrar este comentario?
             <button class="confirm-yes" onclick="confirmDelete('${c.id}')">sí</button>
-            <button class="confirm-no"  onclick="cancelDelete('${c.id}')">no</button>
-          </div>
+            <button class="confirm-no" onclick="cancelDelete('${c.id}')">no</button>
+          </div>` : ''}
         `;
         list.appendChild(card);
       });
     }
 
-    function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
     function startEdit(id) {
+      const card = document.querySelector(`.comment-card[data-id="${id}"]`);
+      document.getElementById(`edit-text-${id}`).value = card.dataset.content;
       document.getElementById(`edit-${id}`).style.display = 'block';
       document.getElementById(`edit-text-${id}`).focus();
     }
     function cancelEdit(id) { document.getElementById(`edit-${id}`).style.display = 'none'; }
-    function saveEdit(id) {
+
+    async function saveEdit(id) {
       const newText = document.getElementById(`edit-text-${id}`).value.trim();
       if (!newText) return;
-      const comments = loadComments().map(c => c.id === id ? { ...c, text: newText, edited: true } : c);
-      saveComments(comments);
-      renderComments();
-    }
-    function startDelete(id) { document.getElementById(`del-${id}`).style.display = 'block'; }
-    function cancelDelete(id) { document.getElementById(`del-${id}`).style.display = 'none'; }
-    function confirmDelete(id) {
-      saveComments(loadComments().filter(c => c.id !== id));
-      renderComments();
+      const { error } = await sb.from('comments').update({ content: newText }).eq('id', id);
+      if (!error) {
+        document.getElementById(`body-${id}`).textContent = newText;
+        document.querySelector(`.comment-card[data-id="${id}"]`).dataset.content = newText;
+        cancelEdit(id);
+      }
     }
 
-    function handleCommentSubmit(event) {
+    function startDelete(id)  { document.getElementById(`del-${id}`).style.display = 'block'; }
+    function cancelDelete(id) { document.getElementById(`del-${id}`).style.display = 'none'; }
+
+    async function confirmDelete(id) {
+      const { error } = await sb.from('comments').delete().eq('id', id);
+      if (!error) {
+        const card = document.querySelector(`.comment-card[data-id="${id}"]`);
+        card.remove();
+        const remaining = document.querySelectorAll('.comment-card').length;
+        document.getElementById('comment-count-label').textContent = `(${remaining})`;
+        if (remaining === 0) document.getElementById('comments-empty').style.display = 'block';
+      }
+    }
+
+    async function handleCommentSubmit(event) {
       event.preventDefault();
-      const form = event.target;
+      const form     = event.target;
       const honeypot = form.querySelector('.hp-field');
-      const nameEl = document.getElementById('comment-name');
-      const msgEl  = document.getElementById('comment-msg');
-      const fb     = document.getElementById('comment-form-msg');
+      const nameEl   = document.getElementById('comment-name');
+      const msgEl    = document.getElementById('comment-msg');
+      const btn      = form.querySelector('.submit-btn');
+      const fb       = document.getElementById('comment-form-msg');
 
       if (honeypot?.value) return;
-      if (!nameEl.value.trim() || !msgEl.value.trim()) {
-        if (!nameEl.value.trim()) nameEl.classList.add('error-input');
-        if (!msgEl.value.trim())  msgEl.classList.add('error-input');
+
+      [nameEl, msgEl].forEach(el => el.classList.remove('error-input'));
+      let valid = true;
+      if (!nameEl.value.trim()) { nameEl.classList.add('error-input'); valid = false; }
+      if (!msgEl.value.trim())  { msgEl.classList.add('error-input');  valid = false; }
+      if (!valid) {
         fb.textContent = '✦ completa nombre y comentario';
-        fb.className   = 'form-message error';
+        fb.className = 'form-message error';
         fb.style.display = 'block';
         return;
       }
-      nameEl.classList.remove('error-input');
-      msgEl.classList.remove('error-input');
 
-      const comment = { id: Date.now().toString(36) + Math.random().toString(36).slice(2), name: nameEl.value.trim(), text: msgEl.value.trim(), timestamp: new Date().toISOString(), edited: false };
-      const comments = loadComments();
-      comments.push(comment);
-      saveComments(comments);
-      renderComments();
+      const orig = btn.textContent;
+      btn.textContent = 'enviando...';
+      btn.disabled = true;
+
+      const name = nameEl.value.trim();
+      const { error } = await sb.from('comments').insert([{
+        post_slug:   POST_SLUG,
+        author_name: name,
+        content:     msgEl.value.trim(),
+        is_approved: false
+      }]);
+
+      btn.textContent = orig;
+      btn.disabled = false;
+
+      if (error) {
+        fb.textContent = '✦ algo salió mal, intentá de nuevo';
+        fb.className = 'form-message error';
+        fb.style.display = 'block';
+        return;
+      }
+
+      localStorage.setItem(COMMENTER_KEY, name);
       form.reset();
-      fb.textContent = '🌸 comentario publicado ✦';
-      fb.className   = 'form-message success';
+      nameEl.value = name; // mantener el nombre para facilitar comentarios futuros
+      fb.innerHTML = '🌸 comentario enviado — aparecerá una vez aprobado ✦';
+      fb.className = 'form-message success';
       fb.style.display = 'block';
-      setTimeout(() => { fb.style.display = 'none'; }, 4000);
+      setTimeout(() => { fb.style.display = 'none'; }, 6000);
 
       if (typeof umami !== 'undefined') umami.track('comment_posted');
     }
@@ -1090,7 +1135,11 @@
     }
 
     /* ══ INIT ══ */
-    document.addEventListener('DOMContentLoaded', renderComments);
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem(COMMENTER_KEY);
+      if (saved) document.getElementById('comment-name').value = saved;
+      renderComments();
+    });
   </script>
 </body>
 </html>
