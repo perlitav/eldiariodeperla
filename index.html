@@ -164,7 +164,7 @@
     .retrato-card:nth-child(2) { transform:rotate(0deg) translateY(-8px); }
     .retrato-card:nth-child(3) { transform:rotate(1.5deg); }
     .retrato-card:hover { transform:rotate(0deg) scale(1.04) translateY(-4px); z-index:5; box-shadow:0 16px 40px rgba(43,32,36,.22); }
-    .retrato-card img { width:100%; aspect-ratio:3/4; object-fit:cover; object-position:top; display:block; }
+    .retrato-card img { width:100%; height:auto; display:block; }
     .retrato-card .photo-caption { font-family:'Caveat',cursive; font-size:13px; color:var(--ink-muted); text-align:center; margin-top:6px; }
     .retrato-card::before {
       content:''; position:absolute; top:-10px; left:50%; transform:translateX(-50%) rotate(-3deg);
@@ -423,7 +423,6 @@
       .post-title { font-size:32px; }
       .retratos-grid { grid-template-columns:1fr; gap:20px; }
       .retrato-card:nth-child(1), .retrato-card:nth-child(2), .retrato-card:nth-child(3) { transform:none; }
-      .retrato-card img { aspect-ratio:4/5; }
       .photo-gallery { grid-template-columns:repeat(2,1fr); }
       .lb-nav { padding:6px 10px; font-size:18px; }
     }
