@@ -957,7 +957,7 @@
       'https://glzgnjwnrdqjlyyzrvhc.supabase.co',
       'sb_publishable_3QZVLd-fWLEYZMJoz3LBvg_KooMujDH'
     );
-    const POST_SLUG     = 'porto-galinhas-2026';
+    const POST_SLUG     = 'puerto-de-galinhas';
     const COMMENTER_KEY = 'perlhada-commenter-name';
 
     function timeAgo(iso) {
@@ -1093,8 +1093,7 @@
       const { error } = await sb.from('comments').insert([{
         post_slug:   POST_SLUG,
         author_name: name,
-        content:     msgEl.value.trim(),
-        is_approved: false
+        content:     msgEl.value.trim()
       }]);
 
       btn.textContent = orig;
