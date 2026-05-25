@@ -1108,7 +1108,8 @@
 
       localStorage.setItem(COMMENTER_KEY, name);
       form.reset();
-      nameEl.value = name; // mantener el nombre para facilitar comentarios futuros
+      nameEl.value = name;
+      await renderComments();
       fb.innerHTML = '🌸 comentario enviado ✦';
       fb.className = 'form-message success';
       fb.style.display = 'block';
