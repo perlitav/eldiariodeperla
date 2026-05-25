@@ -130,25 +130,46 @@
     .post-body h2 { font-family:'Caveat',cursive; font-size:28px; color:var(--lila-deep); margin:32px 0 16px; position:relative; display:inline-block; }
 
     /* ── GALLERY ── */
-    .photo-gallery { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:32px 0; }
-    .photo-gallery.gallery-2 { grid-template-columns:repeat(2,1fr); }
+    .photo-gallery {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 16px;
+      margin: 32px 0;
+      flex-wrap: wrap;
+    }
+    .photo-gallery.gallery-2 { justify-content: center; }
 
     .polaroid-photo {
       background:white; padding:8px 8px 32px; box-shadow:var(--shadow-polaroid);
       position:relative; cursor:zoom-in; transition:var(--transition);
+      width: fit-content;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .polaroid-photo:nth-child(odd)   { transform:rotate(-1.5deg); }
     .polaroid-photo:nth-child(even)  { transform:rotate(1.2deg); }
     .polaroid-photo:nth-child(3n)    { transform:rotate(-.8deg); }
     .polaroid-photo:hover { transform:rotate(0deg) scale(1.03); z-index:2; box-shadow:0 12px 32px rgba(43,32,36,.2); }
-    .polaroid-photo img  { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .polaroid-photo img {
+      height: 280px;
+      max-height: 40vh;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+    }
     .polaroid-photo .photo-caption { font-family:'Caveat',cursive; font-size:13px; color:var(--ink-muted); text-align:center; margin-top:6px; }
     .polaroid-photo::before {
       content:''; position:absolute; top:-8px; left:50%; transform:translateX(-50%) rotate(-5deg);
       width:40px; height:16px; background:rgba(201,168,233,.7); opacity:.8;
     }
     .polaroid-photo:nth-child(even)::before { background:rgba(247,181,209,.7); transform:translateX(-50%) rotate(4deg); }
-    .zoom-hint { font-family:'VT323',monospace; font-size:14px; color:var(--ink-muted); text-align:center; margin-top:12px; margin-bottom:4px; opacity:.85; display:block; }
+    .zoom-hint {
+      width: 100%;
+      font-family:'VT323',monospace; font-size:14px; color:var(--ink-muted); text-align:center; margin-top:12px; margin-bottom:4px; opacity:.85; display:block;
+    }
     .meme-sticker { display:inline-block; font-family:'VT323',monospace; font-size:1em; background:linear-gradient(135deg,var(--rosa-deep),var(--lila-deep)); color:white; padding:3px 10px; border-radius:999px; letter-spacing:.05em; animation:meme-shake 2s ease-in-out infinite; box-shadow:2px 2px 0 var(--ink); margin:0 3px; vertical-align:baseline; }
 
     /* ── RETRATOS GALERÍA ── */
@@ -351,15 +372,54 @@
     .mp-time { font-family:'VT323',monospace; font-size:13px; color:var(--ink-muted); white-space:nowrap; }
 
     /* ── ALBUM DE RECUERDOS (moodboard) ── */
-    .moodboard-scroll { display:grid; grid-template-columns:1fr 1fr; gap:6px; max-height:300px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--lila-glitter) var(--paper-edge); padding:2px; }
-    .moodboard-scroll::-webkit-scrollbar { width:6px; }
-    .moodboard-scroll::-webkit-scrollbar-track { background:var(--paper-edge); }
-    .moodboard-scroll::-webkit-scrollbar-thumb { background:var(--lila-glitter); }
-    .moodboard-item { position:relative; background:white; padding:4px 4px 20px; box-shadow:0 2px 6px rgba(43,32,36,.1); cursor:zoom-in; transition:var(--transition); }
-    .moodboard-item:hover { transform:scale(1.04); z-index:2; }
-    .moodboard-item img  { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
-    .moodboard-item::before { content:''; position:absolute; top:-6px; left:50%; transform:translateX(-50%) rotate(-4deg); width:28px; height:12px; background:rgba(201,168,233,.7); }
-    .moodboard-item:nth-child(even)::before { background:rgba(247,181,209,.7); transform:translateX(-50%) rotate(3deg); }
+    .moodboard-scroll {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 columnas para vistas miniatura */
+      grid-auto-rows: max-content; /* Evita que las filas se estiren verticalmente */
+      align-items: start; /* Asegura que las fotos no se deformen a lo alto */
+      gap: 6px;
+      height: 180px; /* Altura ajustada para mostrar exactamente 2 filas (6 imágenes) */
+      overflow-y: scroll; /* Fuerza la visibilidad de la barra */
+      scrollbar-width: thin;
+      scrollbar-color: var(--lila-glitter) var(--paper-edge);
+      padding: 6px 4px;
+    }
+    .moodboard-scroll::-webkit-scrollbar {
+      width: 12px;
+    }
+    .moodboard-scroll::-webkit-scrollbar-track {
+      background: var(--paper-edge);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    .moodboard-scroll::-webkit-scrollbar-thumb {
+      background: var(--lila-glitter);
+      border: 2px solid var(--paper-edge);
+      box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4), inset -1px -1px 0 rgba(0,0,0,0.15);
+    }
+    .moodboard-item {
+      position: relative;
+      background: white;
+      padding: 3px 3px 12px; /* Proporcional a una polaroid pequeña */
+      box-shadow: 0 2px 5px rgba(43,32,36,.12);
+      cursor: zoom-in;
+      transition: var(--transition);
+    }
+    .moodboard-item:hover { transform: scale(1.06) rotate(1deg); z-index: 2; }
+    .moodboard-item img  { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; display: block; }
+    .moodboard-item::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-4deg);
+      width: 20px; /* Cinta escalada */
+      height: 9px;
+      background: rgba(201,168,233,.75);
+    }
+    .moodboard-item:nth-child(even)::before {
+      background: rgba(247,181,209,.75);
+      transform: translateX(-50%) rotate(3deg);
+    }
 
     /* ── SIDEBAR NEWSLETTER ── */
     .sidebar-nl-body { padding:16px; }
@@ -427,7 +487,8 @@
       .post-title { font-size:32px; }
       .retratos-grid { grid-template-columns:1fr; gap:20px; }
       .retrato-card:nth-child(1), .retrato-card:nth-child(2), .retrato-card:nth-child(3) { transform:none; }
-      .photo-gallery { grid-template-columns:repeat(2,1fr); }
+      .photo-gallery { display: flex; justify-content: center; }
+      .polaroid-photo img { height: 200px; }
       .lb-nav { padding:6px 10px; font-size:18px; }
     }
 
@@ -438,14 +499,14 @@
       .window-actions { display:none; }
       .nl-form-row { flex-direction:column; }
       .nl-form-row .nl-btn { width:100%; }
-      .photo-gallery { grid-template-columns:1fr 1fr; gap:10px; }
+      .photo-gallery { display: flex; gap:10px; justify-content: center; }
       .lb-body { padding:12px 8px; gap:6px; }
     }
 
     @media (max-width:390px) {
       .site-header { padding:20px 16px; }
       .post-title { font-size:28px; }
-      .photo-gallery { grid-template-columns:1fr; }
+      .photo-gallery { display: flex; }
       .retratos-grid { padding:10px; }
     }
   </style>
